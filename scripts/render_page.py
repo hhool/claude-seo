@@ -43,7 +43,7 @@ A dict with::
     redirect_chain    list of {url, status_code}
     console_errors    list of browser console error strings
     render_diagnostics list of non-fatal render degradation messages
-    render_engine     'playwright-chromium' or None
+    render_engine     'playwright-chromium', 'system-chrome', 'system-msedge' or None
     render_ms         elapsed wall-clock for the render step
     mode_used         'rendered' or 'raw'
     too_large         True when the raw body hit the size cap (MAX_PAGE_BYTES)
@@ -76,6 +76,8 @@ import time
 from typing import Any, Optional
 
 from bs4 import BeautifulSoup
+
+from browser_launch import launch_browser
 
 # Optional native dependencies. Each is checked lazily so callers that
 # only need raw-mode (mode='never') don't pay the import cost.
@@ -522,7 +524,7 @@ def render_page(
 
         try:
             with sync_playwright() as p:
-                browser = p.chromium.launch(headless=True)
+                browser, engine = launch_browser(p)
                 context = new_guarded_context(
                     browser,
                     route_handler,
@@ -561,7 +563,7 @@ def render_page(
                 result["headers"] = (
                     dict(response.all_headers()) if response else raw_headers
                 )
-                result["render_engine"] = "playwright-chromium"
+                result["render_engine"] = engine
 
                 if extract_accessibility:
                     try:

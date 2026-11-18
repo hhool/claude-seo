@@ -375,8 +375,9 @@ def detect_tier() -> dict:
             ] + (["Keywords Everywhere Open PageRank (0-10 domain rank)"] if has_kwe else []),
             "missing": (
                 "Add Moz API key for DA/PA and spam scoring. "
-                "Free at https://moz.com/products/api (2,500 rows/month). "
-                "Or add a Keywords Everywhere key for a lightweight 0-10 domain rank fallback."
+                "Free tier is only 50 rows/month and REQUIRES a credit card (https://moz.com/products/api). "
+                "For a NO-CARD setup instead use Bing Webmaster Tools API (free, owned-site link enumeration) "
+                "plus a Keywords Everywhere Open PageRank key (free, 30k domains/month, 0-10 rank)."
             ),
         }
 
@@ -428,13 +429,13 @@ TIER 0: ALWAYS AVAILABLE (no setup needed)
 
   These work immediately with no configuration.
 
-TIER 1: MOZ API (free signup, 2,500 rows/month)
+TIER 1: MOZ API (free signup, 50 rows/month)
 -------------------------------------------------
   1. Go to https://moz.com/products/api
-  2. Click "Start your free 30-day trial" or "Get Free Access"
-     (Free tier continues after trial with 2,500 rows/month)
+  2. Choose "Free" (50 rows/month, 1 request per 10s)
+     Paid entry point: Starter Medium $20/mo = 3,000 rows
   3. A valid credit card is required at signup but will NOT be charged
-  4. After signup, go to https://moz.com/products/api/keys
+  4. After signup, go to https://moz.com/api/dashboard to create a token
   5. Copy your API credentials. Claude SEO accepts either:
      - a token-style key (looks like: mozscape-xxxxxxxx)
      - free-tier accessId:secret credentials, raw or base64 encoded

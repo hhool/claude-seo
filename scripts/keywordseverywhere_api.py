@@ -109,11 +109,39 @@ def get_rank(domains: list, api_key: str) -> dict:
     try:
         response = _post(KWE_BASE, headers=headers, json=payload, timeout=30)
 
-        if response.status_code == 401 or response.status_code == 403:
+        if response.status_code == 401:
             return {
                 "status": "error",
                 "data": None,
                 "error": "Invalid Keywords Everywhere API key. Check your key in the Keywords Everywhere dashboard.",
+                "metadata": {"source": "keywordseverywhere"},
+            }
+
+        if response.status_code == 403:
+            # Free Open PageRank keys are bound to a single egress IP since
+            # 2026-11-01; a call from any other address is refused with 403
+            # address_error. Surface that specifically instead of masking it as
+            # an invalid key (the previous behaviour hid the real cause).
+            try:
+                _body = response.json()
+                _err = _body.get("error") if isinstance(_body, dict) else None
+                _msg = (_err.get("message") if isinstance(_err, dict) else _err) or ""
+            except (ValueError, RecursionError):
+                _msg = ""
+            if "address_error" in _msg or "another IP" in _msg:
+                return {
+                    "status": "error",
+                    "data": None,
+                    "error": "Open PageRank free key is bound to another IP address. "
+                             "Set this machine's egress IP on https://keywordseverywhere.com/account/openpagerank "
+                             "(free keys allow one IP, changeable once per week).",
+                    "metadata": {"source": "keywordseverywhere", "error_type": "address_error"},
+                }
+            return {
+                "status": "error",
+                "data": None,
+                "error": "Keywords Everywhere request forbidden (HTTP 403). If your key is the free Open PageRank "
+                         "key, bind this machine's egress IP on the account page.",
                 "metadata": {"source": "keywordseverywhere"},
             }
 

@@ -103,7 +103,11 @@ def validate_verification_results(verify_data: dict) -> list:
         status = r.get("status", "")
         source_domain = urlparse(source).netloc.lower()
 
-        if status == "link_removed" and any(sd in source_domain for sd in social_domains):
+        # boundary-aware match: "x.com" must not match "344sfx.com"
+        def _is_social(domain: str) -> bool:
+            return any(domain == sd or domain.endswith("." + sd) for sd in social_domains)
+
+        if status == "link_removed" and _is_social(source_domain):
             # Social media page marked as link_removed: likely false negative
             http_status = r.get("http_status", 0)
             if http_status == 200:

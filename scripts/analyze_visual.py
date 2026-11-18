@@ -22,6 +22,7 @@ except ImportError:
 _SCRIPTS_DIR = os.path.dirname(os.path.abspath(__file__))
 if _SCRIPTS_DIR not in sys.path:
     sys.path.insert(0, _SCRIPTS_DIR)
+from browser_launch import launch_browser  # noqa: E402
 from url_safety import (  # noqa: E402  (sys.path massage above is intentional)
     URLSafetyError,
     make_safe_playwright_route_handler,
@@ -97,7 +98,7 @@ def analyze_visual(url: str, timeout: int = 30000) -> dict:
 
     try:
         with sync_playwright() as p:
-            browser = p.chromium.launch(headless=True)
+            browser, _engine = launch_browser(p)
 
             # Desktop analysis
             desktop = new_guarded_context(browser, route_handler, viewport={"width": 1920, "height": 1080})
